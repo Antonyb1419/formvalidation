@@ -48,9 +48,11 @@ class _ProductoPageState extends State<ProductoPage> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Container(
+        child:
+        Container(
           padding: EdgeInsets.all(15.0),
-          child: Form(
+          child:
+          Form(
             key: formKey,
             child: Column(
               children: <Widget>[
@@ -64,6 +66,7 @@ class _ProductoPageState extends State<ProductoPage> {
           ),
         ),
       ),
+
     );
   }
 
@@ -120,11 +123,11 @@ class _ProductoPageState extends State<ProductoPage> {
     setState(() {
       _guardando = true;
     });
-    //File image = File(foto.toString());
     if (foto != null) {
       producto.fotoUrl = await productoProvider.subirImagen(File(foto!.path));
+      print(producto.fotoUrl);
     }
-
+    print(producto.fotoUrl);
     if (producto.id == null) {
       productoProvider.crearProducto(producto);
     } else {
@@ -154,16 +157,22 @@ class _ProductoPageState extends State<ProductoPage> {
 
   Widget _mostrarFoto() {
     if (producto.fotoUrl != null) {
-      return Container();
+      return FadeInImage(
+          image: NetworkImage(producto.fotoUrl.toString()),
+          placeholder: AssetImage('assets/jar-loading.gif'),
+          height: 300.0,
+          fit: BoxFit.contain
+      );
     } else {
       return Image(
-        image: AssetImage(foto?.path ?? 'assets/no-image.png'),
+        image: foto != null? FileImage(File(foto!.path)): AssetImage('assets/no-image.png')
+        as  ImageProvider<Object>,
         height: 300.0,
         fit: BoxFit.cover,
       );
     }
   }
-
+  
   void _seleccionarFoto() async {
     _procesarImagen(ImageSource.gallery);
   }
@@ -175,7 +184,9 @@ class _ProductoPageState extends State<ProductoPage> {
   _procesarImagen(ImageSource origen) async {
     foto = (await _picker.pickImage(source: origen))!;
 
-    if (foto != null) {}
+    if (foto != null) {
+      producto.fotoUrl = null;
+    }
 
     setState(() {});
   }
