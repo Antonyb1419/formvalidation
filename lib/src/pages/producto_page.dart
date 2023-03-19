@@ -7,13 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import '../providers/productos_provider.dart';
 import '../utils/utils.dart' as utils;
 
-
 class ProductoPage extends StatefulWidget {
   @override
   _ProductoPageState createState() => _ProductoPageState();
 }
 
-class _ProductoPageState extends State<ProductoPage>{
+class _ProductoPageState extends State<ProductoPage> {
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
   final productoProvider = new ProductosProvider();
@@ -25,10 +24,10 @@ class _ProductoPageState extends State<ProductoPage>{
 
   @override
   Widget build(BuildContext context) {
+    final ProductoModel prodData =
+        ModalRoute.of(context)?.settings.arguments as ProductoModel;
 
-    final ProductoModel prodData =  ModalRoute.of(context)?.settings.arguments as ProductoModel;
-
-    if(prodData != null){
+    if (prodData != null) {
       producto = prodData;
     }
 
@@ -40,7 +39,7 @@ class _ProductoPageState extends State<ProductoPage>{
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.photo_size_select_actual),
-            onPressed:  _seleccionarFoto,
+            onPressed: _seleccionarFoto,
           ),
           IconButton(
             icon: Icon(Icons.camera_alt),
@@ -52,52 +51,50 @@ class _ProductoPageState extends State<ProductoPage>{
         child: Container(
           padding: EdgeInsets.all(15.0),
           child: Form(
-           key: formKey,
-           child: Column(
-             children: <Widget>[
-               _mostrarFoto(),
-               _crearNombre(),
-               _crearPrecio(),
-               _crearDisponible(),
-               _crearBoton()
-             ],
-           ),
+            key: formKey,
+            child: Column(
+              children: <Widget>[
+                _mostrarFoto(),
+                _crearNombre(),
+                _crearPrecio(),
+                _crearDisponible(),
+                _crearBoton()
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
- Widget _crearNombre() {
+  Widget _crearNombre() {
     return TextFormField(
       initialValue: producto.titulo,
       textCapitalization: TextCapitalization.sentences,
-      decoration: InputDecoration(
-        labelText: 'Producto'
-      ),
+      decoration: InputDecoration(labelText: 'Producto'),
       onSaved: (value) => producto.titulo = value,
-      validator: (value){
-        if(value!.length < 3){
+      validator: (value) {
+        if (value!.length < 3) {
           return 'Ingrese el nombre del producto';
-        }else{
+        } else {
           return null;
         }
       },
     );
   }
-  Widget _crearPrecio(){
+
+  Widget _crearPrecio() {
     return TextFormField(
       initialValue: producto.valor.toString(),
       keyboardType: TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-          labelText: 'Precio'
-      ),
+      decoration: InputDecoration(labelText: 'Precio'),
       onSaved: (value) => producto.valor = double.parse(value!),
-      validator: (value){
-        if(utils.isNumeric(value.toString())){
+      validator: (value) {
+        if (utils.isNumeric(value.toString())) {
           return null;
-        }else{
-          return 'Solo números';;
+        } else {
+          return 'Solo números';
+          ;
         }
       },
     );
@@ -108,30 +105,29 @@ class _ProductoPageState extends State<ProductoPage>{
       label: Text('Guardar'),
       icon: Icon(Icons.save),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepPurple,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0)
-        )
-      ),
+          backgroundColor: Colors.deepPurple,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0))),
       onPressed: (_guardando) ? null : _submit,
     );
   }
 
-  void _submit() async{
-
-    if(!formKey.currentState!.validate()) return;
+  void _submit() async {
+    if (!formKey.currentState!.validate()) return;
 
     formKey.currentState?.save();
 
-    setState(() {_guardando = true;});
-     //File image = File(foto.toString());
-    if(foto != null){
-      producto.fotoUrl = await productoProvider.subirImagen(foto as File);
+    setState(() {
+      _guardando = true;
+    });
+    //File image = File(foto.toString());
+    if (foto != null) {
+      producto.fotoUrl = await productoProvider.subirImagen(File(foto!.path));
     }
 
-    if(producto.id == null){
+    if (producto.id == null) {
       productoProvider.crearProducto(producto);
-    }else{
+    } else {
       productoProvider.editarProducto(producto);
     }
     //setState(() {_guardando = false;});
@@ -139,39 +135,33 @@ class _ProductoPageState extends State<ProductoPage>{
     Navigator.pop(context);
   }
 
-  void mostrarSnackBar(String mensaje){
-    final snackbar = ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(mensaje),
-          duration: Duration(milliseconds: 2500)
-         )
-      );
+  void mostrarSnackBar(String mensaje) {
+    final snackbar = ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(mensaje), duration: Duration(milliseconds: 2500)));
     scaffoldKey.currentState!.showSnackBar(snackbar as SnackBar);
   }
 
-Widget  _crearDisponible() {
+  Widget _crearDisponible() {
     return SwitchListTile(
-        value: producto.disponible as bool,
-        title: Text('Disponible'),
-        activeColor: Colors.deepPurple,
-        onChanged: (value) => setState((){
-          producto.disponible = value;
+      value: producto.disponible as bool,
+      title: Text('Disponible'),
+      activeColor: Colors.deepPurple,
+      onChanged: (value) => setState(() {
+        producto.disponible = value;
       }),
     );
   }
 
- Widget _mostrarFoto(){
-
-    if(producto.fotoUrl != null){
+  Widget _mostrarFoto() {
+    if (producto.fotoUrl != null) {
       return Container();
-    }else{
+    } else {
       return Image(
-          image: AssetImage( foto?.path ?? 'assets/no-image.png'),
-          height: 300.0,
-          fit: BoxFit.cover,
+        image: AssetImage(foto?.path ?? 'assets/no-image.png'),
+        height: 300.0,
+        fit: BoxFit.cover,
       );
     }
-
   }
 
   void _seleccionarFoto() async {
@@ -182,19 +172,11 @@ Widget  _crearDisponible() {
     _procesarImagen(ImageSource.camera);
   }
 
-  _procesarImagen(ImageSource origen) async{
-    foto = (await  _picker.pickImage(
-        source: origen
-    ))!;
+  _procesarImagen(ImageSource origen) async {
+    foto = (await _picker.pickImage(source: origen))!;
 
-    if(foto != null){
-
-    }
+    if (foto != null) {}
 
     setState(() {});
   }
-
 }
-
-
-
